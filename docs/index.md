@@ -1,56 +1,116 @@
 ---
 layout: default
-title: Home
+title: AI News Radar
 ---
 
-# Horizon
+<section id="lang-zh" class="lang-section home-shell" markdown="1">
 
-<div id="lang-zh" class="lang-section" markdown="1">
+<p class="site-kicker">每日 AI 新聞雷達</p>
 
-欢迎来到 [Horizon](https://github.com/thysrael/Horizon)，一个 AI 驱动的信息聚合系统。
+# AI News Radar
 
-## 文档
+每天自動追蹤 AI、開發者工具、研究、開源項目與科技新聞，篩走雜訊，留下值得讀的重點。
 
-- [配置指南](configuration) — AI 提供商、信息源、过滤规则与环境变量替换
-- [信息源采集器](scrapers) — Horizon 如何从 GitHub、Hacker News、RSS、Reddit 采集内容
-- [评分系统](scoring) — 基于 AI 的内容分析与 0-10 评分体系
+<p class="home-actions">
+  <a class="home-button primary" href="#daily-briefings">閱讀最新摘要</a>
+  <a class="home-button" href="{{ '/feed-zh.xml' | relative_url }}">訂閱 RSS</a>
+</p>
 
-## 每日速递 <a class="rss-icon" href="{{ '/feed-zh.xml' | relative_url }}" aria-label="订阅中文"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M128.081 415.959c0 35.369-28.672 64.041-64.041 64.041S0 451.328 0 415.959s28.672-64.041 64.041-64.041 64.04 28.673 64.04 64.041zm175.66 47.25c-8.354-154.6-132.185-278.587-286.95-286.95C7.656 175.765 0 183.105 0 192.253v48.069c0 8.415 6.49 15.472 14.887 16.018 111.832 7.284 201.473 96.702 208.772 208.772.547 8.397 7.604 14.887 16.018 14.887h48.069c9.149.001 16.489-7.655 15.995-16.79zm144.249.288C439.596 229.677 251.465 40.445 16.503 32.01 7.473 31.686 0 38.981 0 48.016v48.068c0 8.625 6.835 15.645 15.453 15.999 191.179 7.839 344.627 161.316 352.465 352.465.353 8.618 7.373 15.453 15.999 15.453h48.068c9.034-.001 16.329-7.474 16.005-16.504z"/></svg></a>
-
-<ul>
-  {% assign zh_posts = site.posts | where: "lang", "zh" %}
-  {% for post in zh_posts limit:20 %}
-    <li>
-      <a href="{{ post.url | relative_url }}">{{ post.date | date: "%Y-%m-%d" }}</a>
-    </li>
-  {% else %}
-    <li><em>暂无内容</em></li>
-  {% endfor %}
-</ul>
-
+<div class="metric-grid" markdown="1">
+<div>
+  <strong>香港繁中</strong>
+  <span>每日中文摘要</span>
+</div>
+<div>
+  <strong>English</strong>
+  <span>英文版同步保存</span>
+</div>
+<div>
+  <strong>自動更新</strong>
+  <span>GitHub Actions 排程產生</span>
+</div>
 </div>
 
-<div id="lang-en" class="lang-section" markdown="1">
+## 最新摘要 {#daily-briefings}
 
-Welcome to [Horizon](https://github.com/thysrael/Horizon), an AI-driven information aggregation system.
-
-## Documentation
-
-- [Configuration Guide](configuration) — AI providers, information sources, filtering, and environment variable substitution
-- [Source Scrapers](scrapers) — How Horizon collects content from GitHub, Hacker News, RSS, and Reddit
-- [Scoring System](scoring) — AI-based content analysis and the 0-10 scoring scale
-
-## Daily Digest <a class="rss-icon" href="{{ '/feed-en.xml' | relative_url }}" aria-label="Subscribe English"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M128.081 415.959c0 35.369-28.672 64.041-64.041 64.041S0 451.328 0 415.959s28.672-64.041 64.041-64.041 64.04 28.673 64.04 64.041zm175.66 47.25c-8.354-154.6-132.185-278.587-286.95-286.95C7.656 175.765 0 183.105 0 192.253v48.069c0 8.415 6.49 15.472 14.887 16.018 111.832 7.284 201.473 96.702 208.772 208.772.547 8.397 7.604 14.887 16.018 14.887h48.069c9.149.001 16.489-7.655 15.995-16.79zm144.249.288C439.596 229.677 251.465 40.445 16.503 32.01 7.473 31.686 0 38.981 0 48.016v48.068c0 8.625 6.835 15.645 15.453 15.999 191.179 7.839 344.627 161.316 352.465 352.465.353 8.618 7.373 15.453 15.999 15.453h48.068c9.034-.001 16.329-7.474 16.005-16.504z"/></svg></a>
-
-<ul>
-  {% assign en_posts = site.posts | where: "lang", "en" %}
-  {% for post in en_posts limit:20 %}
-    <li>
-      <a href="{{ post.url | relative_url }}">{{ post.date | date: "%Y-%m-%d" }}</a>
-    </li>
-  {% else %}
-    <li><em>No posts yet</em></li>
-  {% endfor %}
-</ul>
-
+<div class="digest-list" markdown="1">
+{% assign zh_posts = site.posts | where_exp: "post", "post.lang == 'zh' or post.lang == 'zh-hk'" %}
+{% for post in zh_posts limit:12 %}
+<article class="digest-card" markdown="1">
+  <span class="digest-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+  <h3><a href="{{ post.url | relative_url }}">{{ post.title | default: "每日 AI 摘要" }}</a></h3>
+  <p>AI 精選新聞、背景解釋、社群討論與參考連結。</p>
+</article>
+{% else %}
+<article class="digest-card" markdown="1">
+  <h3>尚未有摘要</h3>
+  <p>執行 Horizon 後，每日摘要會出現在這裡。</p>
+</article>
+{% endfor %}
 </div>
+
+## 這個網站會做什麼
+
+- 從 GitHub、Hacker News、RSS 等來源收集新內容
+- 用 AI 評分，挑出真正值得看的條目
+- 為每則新聞補上背景、討論重點與參考連結
+- 產生香港繁中與英文 Markdown 摘要
+- 發佈到 GitHub Pages，變成可分享的每日新聞網站
+
+</section>
+
+<section id="lang-en" class="lang-section home-shell" markdown="1">
+
+<p class="site-kicker">Daily AI News Radar</p>
+
+# AI News Radar
+
+An automatically updated digest of AI, developer tools, research, open source, and technology news. It filters the noise and keeps the stories worth reading.
+
+<p class="home-actions">
+  <a class="home-button primary" href="#daily-digests">Read Latest Digest</a>
+  <a class="home-button" href="{{ '/feed-en.xml' | relative_url }}">Subscribe RSS</a>
+</p>
+
+<div class="metric-grid" markdown="1">
+<div>
+  <strong>ZH-HK</strong>
+  <span>Traditional Chinese digest</span>
+</div>
+<div>
+  <strong>English</strong>
+  <span>English digest archive</span>
+</div>
+<div>
+  <strong>Automated</strong>
+  <span>Generated by GitHub Actions</span>
+</div>
+</div>
+
+## Latest Digests {#daily-digests}
+
+<div class="digest-list" markdown="1">
+{% assign en_posts = site.posts | where: "lang", "en" %}
+{% for post in en_posts limit:12 %}
+<article class="digest-card" markdown="1">
+  <span class="digest-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+  <h3><a href="{{ post.url | relative_url }}">{{ post.title | default: "Daily AI Digest" }}</a></h3>
+  <p>AI-curated headlines, background notes, community discussion, and source links.</p>
+</article>
+{% else %}
+<article class="digest-card" markdown="1">
+  <h3>No digests yet</h3>
+  <p>Run Horizon and the daily summaries will appear here.</p>
+</article>
+{% endfor %}
+</div>
+
+## What This Site Does
+
+- Collects fresh stories from GitHub, Hacker News, RSS, and other configured sources
+- Scores stories with AI and keeps the important ones
+- Adds background context, discussion summaries, and references
+- Generates ZH-HK and English Markdown summaries
+- Publishes the archive to GitHub Pages as a shareable news site
+
+</section>

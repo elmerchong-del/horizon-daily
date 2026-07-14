@@ -124,6 +124,29 @@ def test_generate_summary_zh_uses_localized_selection_header_and_numeric_date():
     assert "Apr 25, 08:00" not in result
 
 
+def test_generate_summary_zh_hk_uses_traditional_labels_and_zh_metadata():
+    summarizer = DailySummarizer()
+    item = _make_item(1)
+    item.metadata["title_zh"] = "中文標題"
+    item.metadata["detailed_summary_zh"] = "這是一段繁體中文摘要。"
+    item.metadata["background_zh"] = "這是背景資料。"
+
+    result = _run_async(
+        summarizer.generate_summary(
+            [item],
+            date="2026-04-25",
+            total_fetched=10,
+            language="zh-hk",
+        )
+    )
+
+    assert "> 從 10 條內容中篩選出 1 條重要資訊。" in result
+    assert "[中文標題](#item-1)" in result
+    assert "這是一段繁體中文摘要。" in result
+    assert "**背景**: 這是背景資料。" in result
+    assert "From 10 items" not in result
+
+
 def test_generate_empty_summary_zh_uses_localized_analyzed_line():
     summarizer = DailySummarizer()
 

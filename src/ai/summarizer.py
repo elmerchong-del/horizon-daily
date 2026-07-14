@@ -86,7 +86,35 @@ LABELS = {
             "3. 检查 AI 模型是否正常工作\n"
         ),
     },
+    "zh-hk": {
+        "header": "Horizon 每日速遞",
+        "source": "來源",
+        "background": "背景",
+        "discussion": "社群討論",
+        "references": "參考連結",
+        "tags": "標籤",
+        "selected_items": "從 {total} 條內容中篩選出 {selected} 條重要資訊。",
+        "empty_analyzed": "已分析 {total} 條內容，但沒有達到重要性門檻的項目。",
+        "empty_body": (
+            "今日暫無重要動態，可能原因：\n"
+            "- 今日關注的資訊來源較平靜\n"
+            "- AI 評分門檻設定過高\n"
+            "- 資訊來源種類有待擴充\n\n"
+            "建議：\n"
+            "1. 在 config.json 中降低 `ai_score_threshold`\n"
+            "2. 加入更多元的資訊來源\n"
+            "3. 檢查 AI 模型是否正常運作\n"
+        ),
+    },
 }
+
+
+def _language_family(language: str) -> str:
+    """Return the base language used for translated item metadata."""
+    normalized = language.lower().replace("_", "-")
+    if normalized.startswith("zh"):
+        return "zh"
+    return normalized
 
 
 class DailySummarizer:
@@ -115,7 +143,9 @@ class DailySummarizer:
         Returns:
             str: Markdown formatted summary
         """
-        labels = LABELS.get(language, LABELS["en"])
+        language_key = language.lower().replace("_", "-")
+        content_language = _language_family(language_key)
+        labels = LABELS.get(language_key, LABELS.get(content_language, LABELS["en"]))
 
         if not items:
             return self._generate_empty_summary(date, total_fetched, labels)
@@ -129,15 +159,15 @@ class DailySummarizer:
         # TOC
         toc_entries = []
         for i, item in enumerate(items):
-            _t = item.metadata.get(f"title_{language}") or item.title
+            _t = item.metadata.get(f"title_{language_key}") or item.metadata.get(f"title_{content_language}") or item.title
             t = _escape_markdown(_t)
-            if language == "zh":
+            if content_language == "zh":
                 t = _pangu(t)
             score = item.ai_score or "?"
             toc_entries.append(f"{i + 1}. [{t}](#item-{i + 1}) \u2b50\ufe0f {score}/10")
         toc = "\n".join(toc_entries) + "\n\n---\n\n"
 
-        parts = [self._format_item(item, labels, language, i + 1) for i, item in enumerate(items)]
+        parts = [self._format_item(item, labels, language_key, i + 1) for i, item in enumerate(items)]
 
         return header + toc + "".join(parts)
 
@@ -149,11 +179,13 @@ class DailySummarizer:
         language: str = "en",
     ) -> str:
         """Generate a compact overview for multi-message webhook delivery."""
-        labels = LABELS.get(language, LABELS["en"])
+        language_key = language.lower().replace("_", "-")
+        content_language = _language_family(language_key)
+        labels = LABELS.get(language_key, LABELS.get(content_language, LABELS["en"]))
         if not items:
             return self._generate_empty_summary(date, total_fetched, labels)
 
-        if language == "zh":
+        if content_language == "zh":
             header = (
                 f"# {labels['header']} - {date}\n\n"
                 f"> 从 {total_fetched} 条内容中筛选出 {len(items)} 条重要资讯。\n\n"
@@ -168,8 +200,12 @@ class DailySummarizer:
 
         entries = []
         for i, item in enumerate(items, start=1):
-            title = _escape_markdown(item.metadata.get(f"title_{language}") or item.title)
-            if language == "zh":
+            title = _escape_markdown(
+                item.metadata.get(f"title_{language_key}")
+                or item.metadata.get(f"title_{content_language}")
+                or item.title
+            )
+            if content_language == "zh":
                 title = _pangu(title)
             score = item.ai_score or "?"
             url = _safe_url(item.url)
@@ -186,13 +222,16 @@ class DailySummarizer:
         total: int,
     ) -> str:
         """Generate one item message for multi-message webhook delivery."""
-        labels = LABELS.get(language, LABELS["en"])
-        prefix = f"第 {index}/{total} 条\n\n" if language == "zh" else f"Item {index}/{total}\n\n"
-        return prefix + self._format_item(item, labels, language, index).rstrip("-\n ")
+        language_key = language.lower().replace("_", "-")
+        content_language = _language_family(language_key)
+        labels = LABELS.get(language_key, LABELS.get(content_language, LABELS["en"]))
+        prefix = f"第 {index}/{total} 條\n\n" if content_language == "zh" else f"Item {index}/{total}\n\n"
+        return prefix + self._format_item(item, labels, language_key, index).rstrip("-\n ")
 
     def _format_item(self, item: ContentItem, labels: dict, language: str, index: int) -> str:
         """Format a single ContentItem into Markdown."""
-        _title = item.metadata.get(f"title_{language}") or item.title
+        content_language = _language_family(language)
+        _title = item.metadata.get(f"title_{language}") or item.metadata.get(f"title_{content_language}") or item.title
         title = _escape_markdown(_title)
         raw_url = str(item.url)
         url = _safe_url(raw_url)
@@ -201,13 +240,15 @@ class DailySummarizer:
 
         summary = (
             meta.get(f"detailed_summary_{language}")
+            or meta.get(f"detailed_summary_{content_language}")
             or meta.get("detailed_summary")
             or item.ai_summary
             or ""
         )
-        background = meta.get(f"background_{language}") or meta.get("background") or ""
+        background = meta.get(f"background_{language}") or meta.get(f"background_{content_language}") or meta.get("background") or ""
         discussion = (
             meta.get(f"community_discussion_{language}")
+            or meta.get(f"community_discussion_{content_language}")
             or meta.get("community_discussion")
             or ""
         )
@@ -216,7 +257,7 @@ class DailySummarizer:
         background = _escape_markdown(background)
         discussion = _escape_markdown(discussion)
 
-        if language == "zh":
+        if content_language == "zh":
             title = _pangu(title)
             summary = _pangu(summary)
             background = _pangu(background)
@@ -232,7 +273,7 @@ class DailySummarizer:
         else:
             source_parts.append(_escape_markdown(item.author or "unknown"))
         if item.published_at:
-            if language == "zh":
+            if content_language == "zh":
                 source_parts.append(
                     f"{item.published_at.month}月{item.published_at.day}日 "
                     f"{item.published_at:%H:%M}"

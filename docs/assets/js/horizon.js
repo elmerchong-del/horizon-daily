@@ -27,8 +27,8 @@
     paragraphs.forEach(function (p) {
       var text = p.textContent.trim();
 
-      // Tag line: starts with Tags or 标签 (bold prefix rendered by Markdown)
-      if (/^(Tags|标签)\s*:/.test(text)) {
+      // Tag line: starts with Tags or Chinese label (bold prefix rendered by Markdown)
+      if (/^(Tags|标签|標籤)\s*:/.test(text)) {
         p.classList.add('tag-line');
         return;
       }
@@ -52,7 +52,7 @@
     btnEn.type = 'button';
 
     var btnZh = document.createElement('button');
-    btnZh.textContent = '中文';
+    btnZh.textContent = '繁中';
     btnZh.type = 'button';
 
     toggle.appendChild(btnEn);
@@ -95,10 +95,10 @@
     function switchArticleLang(lang) {
       var path = window.location.pathname;
       var target = null;
-      if (lang === 'en' && /-zh(?:\.html)?$/.test(path.replace(/\/$/, ''))) {
-        target = path.replace(/-zh(\.html)?$/, '-en$1').replace(/-zh\/$/, '-en/');
+      if (lang === 'en' && /-zh(?:-hk)?(?:\.html)?$/.test(path.replace(/\/$/, ''))) {
+        target = path.replace(/-zh(?:-hk)?(\.html)?$/, '-en$1').replace(/-zh(?:-hk)?\/$/, '-en/');
       } else if (lang === 'zh' && /-en(?:\.html)?$/.test(path.replace(/\/$/, ''))) {
-        target = path.replace(/-en(\.html)?$/, '-zh$1').replace(/-en\/$/, '-zh/');
+        target = path.replace(/-en(\.html)?$/, '-zh-hk$1').replace(/-en\/$/, '-zh-hk/');
       }
       if (target) window.location.href = target;
     }
