@@ -34,7 +34,7 @@ title: AI News Radar
 ## 最新摘要 {#daily-briefings}
 
 <div class="digest-list" markdown="1">
-{% assign zh_posts = site.posts | where_exp: "post", "post.lang == 'zh' or post.lang == 'zh-hk'" %}
+{% assign zh_posts = site.posts | where: "lang", "zh-hk" %}
 {% for post in zh_posts limit:12 %}
 <article class="digest-card" markdown="1">
   <span class="digest-date">{{ post.date | date: "%Y-%m-%d" }}</span>

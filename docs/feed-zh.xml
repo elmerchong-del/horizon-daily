@@ -9,7 +9,7 @@ permalink: /feed-zh.xml
   <link href="{{ '/' | absolute_url }}"/>
   <updated>{{ site.time | date_to_xmlschema }}</updated>
   <id>{{ '/' | absolute_url }}</id>
-  {% assign zh_posts = site.posts | where_exp: "post", "post.lang == 'zh' or post.lang == 'zh-hk'" %}
+  {% assign zh_posts = site.posts | where: "lang", "zh-hk" %}
   {% for post in zh_posts limit:7 %}
   <entry>
     <title>{{ post.title | escape }}</title>
